@@ -1,76 +1,89 @@
 "use client"
 import { useState, useEffect, useRef, useCallback } from "react";
+import Image from "next/image";
 
+// Prioritize the best images by grouping the named creations and sorting archives by recency (highest timestamp first)
 const pastryImages = [
-  // --- Alphanumerical Files ---
-  { src: "/cake_pics/christmas.jpg", label: "Christmas Creation", tag: "Seasonal" },
-  { src: "/cake_pics/cod.jpg", label: "Call of Duty Cake", tag: "Custom Theme" },
-  { src: "/cake_pics/desert_cake.jpg", label: "Desert Cake", tag: "Artisan Cake" },
-  { src: "/cake_pics/ferrero.jpg", label: "Ferrero Rocher Special", tag: "Fine Dessert" },
-  { src: "/cake_pics/g.jpg", label: "Gallery Piece", tag: "Showpiece" },
-  { src: "/cake_pics/g2.jpg", label: "Signature Dessert 2", tag: "Portfolio" },
-  { src: "/cake_pics/g3.jpg", label: "Signature Dessert 3", tag: "Portfolio" },
-  { src: "/cake_pics/g4.jpg", label: "Signature Dessert 4", tag: "Portfolio" },
-  { src: "/cake_pics/g7.jpg", label: "Signature Dessert 7", tag: "Portfolio" },
-  { src: "/cake_pics/g8.jpg", label: "Signature Dessert 8", tag: "Portfolio" },
-  { src: "/cake_pics/g10.jpg", label: "Signature Dessert 10", tag: "Portfolio" },
-  { src: "/cake_pics/g11.jpg", label: "Signature Dessert 11", tag: "Portfolio" },
-  { src: "/cake_pics/g12.jpg", label: "Signature Dessert 12", tag: "Portfolio" },
-  { src: "/cake_pics/g13.jpg", label: "Signature Dessert 13", tag: "Portfolio" },
-  { src: "/cake_pics/g14.jpg", label: "Signature Dessert 14", tag: "Portfolio" },
-  { src: "/cake_pics/g16.jpg", label: "Signature Dessert 16", tag: "Portfolio" },
-  { src: "/cake_pics/g17.jpg", label: "Signature Dessert 17", tag: "Portfolio" },
-  { src: "/cake_pics/g18.jpg", label: "Signature Dessert 18", tag: "Portfolio" },
-  { src: "/cake_pics/g19.jpg", label: "Signature Dessert 19", tag: "Portfolio" },
-  { src: "/cake_pics/spiderman_cake.jpg", label: "Spider-Man Cake", tag: "Custom Theme" },
-
-  // --- Numerical (Timestamp) Files ---
-  { src: "/cake_pics/1606411176953.jpg", label: "Pastry Creation", tag: "Archive" },
-  { src: "/cake_pics/1608152475046.jpg", label: "Pastry Creation", tag: "Archive" },
-  { src: "/cake_pics/1608152497743.jpg", label: "Pastry Creation", tag: "Archive" },
-  { src: "/cake_pics/1608152527629.jpg", label: "Pastry Creation", tag: "Archive" },
-  { src: "/cake_pics/1608152549871.jpg", label: "Pastry Creation", tag: "Archive" },
-  { src: "/cake_pics/1608152618270.jpg", label: "Pastry Creation", tag: "Archive" },
-  { src: "/cake_pics/1608152741252.jpg", label: "Pastry Creation", tag: "Archive" },
-  { src: "/cake_pics/1611240278684.jpg", label: "Pastry Creation", tag: "Archive" },
-  { src: "/cake_pics/1613282438749.jpg", label: "Pastry Creation", tag: "Archive" },
-  { src: "/cake_pics/1613282531957.jpg", label: "Pastry Creation", tag: "Archive" },
-  { src: "/cake_pics/1643086583103.jpg", label: "Pastry Creation", tag: "Archive" },
-  { src: "/cake_pics/1643086798081.jpg", label: "Pastry Creation", tag: "Archive" },
-  { src: "/cake_pics/1644984303072.jpg", label: "Pastry Creation", tag: "Archive" },
-  { src: "/cake_pics/1644984372287.jpg", label: "Pastry Creation", tag: "Archive" },
-  { src: "/cake_pics/1644988820364.jpg", label: "Pastry Creation", tag: "Archive" },
-  { src: "/cake_pics/1647290048307.jpg", label: "Pastry Creation", tag: "Archive" },
-  { src: "/cake_pics/1647765551068.jpg", label: "Pastry Creation", tag: "Archive" },
-  { src: "/cake_pics/1650792546428.jpg", label: "Pastry Creation", tag: "Archive" },
-  { src: "/cake_pics/1651613817034.jpg", label: "Pastry Creation", tag: "Archive" },
-  { src: "/cake_pics/1654083970683.jpg", label: "Pastry Creation", tag: "Archive" },
-  { src: "/cake_pics/1659441472386.jpg", label: "Pastry Creation", tag: "Archive" },
-  { src: "/cake_pics/1659442745088.jpg", label: "Pastry Creation", tag: "Archive" },
-  { src: "/cake_pics/1660043119446.jpg", label: "Pastry Creation", tag: "Archive" },
-  { src: "/cake_pics/1666356356439.jpg", label: "Pastry Creation", tag: "Archive" },
-  { src: "/cake_pics/1669917166382.jpg", label: "Pastry Creation", tag: "Archive" },
-  { src: "/cake_pics/1672477560994.jpg", label: "Pastry Creation", tag: "Archive" },
-  { src: "/cake_pics/1673259155310.jpg", label: "Pastry Creation", tag: "Archive" },
-  { src: "/cake_pics/1673259221189.jpg", label: "Pastry Creation", tag: "Archive" },
-  { src: "/cake_pics/1674047195049.jpg", label: "Pastry Creation", tag: "Archive" },
-  { src: "/cake_pics/1685862819817.jpg", label: "Pastry Creation", tag: "Archive" },
-  { src: "/cake_pics/1685862919315.jpg", label: "Pastry Creation", tag: "Archive" },
-  { src: "/cake_pics/1703429153547.jpg", label: "Pastry Creation", tag: "Archive" },
-  { src: "/cake_pics/1703429216330.jpg", label: "Pastry Creation", tag: "Archive" },
-  { src: "/cake_pics/1703651472625.jpg", label: "Pastry Creation", tag: "Archive" },
-  { src: "/cake_pics/1728987358067.jpg", label: "Pastry Creation", tag: "Archive" },
-  { src: "/cake_pics/1730022204261.jpg", label: "Pastry Creation", tag: "Archive" },
-  { src: "/cake_pics/1730386615520.jpg", label: "Pastry Creation", tag: "Archive" },
-  { src: "/cake_pics/1735837863378.jpg", label: "Pastry Creation", tag: "Archive" },
-  { src: "/cake_pics/1737617505905.jpg", label: "Pastry Creation", tag: "Archive" },
-  { src: "/cake_pics/1738638277231.jpg", label: "Pastry Creation", tag: "Archive" },
-  { src: "/cake_pics/1743838551254.jpg", label: "Pastry Creation", tag: "Archive" },
-  { src: "/cake_pics/1744726250511.jpg", label: "Pastry Creation", tag: "Archive" },
-  { src: "/cake_pics/1745511454918.jpg", label: "Pastry Creation", tag: "Archive" },
-  { src: "/cake_pics/1745512768843.jpg", label: "Pastry Creation", tag: "Archive" },
-  { src: "/cake_pics/1756450799182.jpg", label: "Pastry Creation", tag: "Archive" },
-  { src: "/cake_pics/1760682954010.jpg", label: "Pastry Creation", tag: "Archive" }
+  // --- High Priority / Alphanumerical Files ---
+  ...[
+    
+    
+    { src: "/cake_pics/desert_cake.jpg", label: "Desert Cake", tag: "Artisan Cake" },
+    { src: "/cake_pics/ferrero.jpg", label: "Ferrero Rocher Special", tag: "Fine Dessert" },
+    { src: "/cake_pics/cod.jpg", label: "Call of Duty Cake", tag: "Custom Theme" },
+    { src: "/cake_pics/g.jpg", label: "Gallery Piece", tag: "Showpiece" },
+    { src: "/cake_pics/christmas.jpg", label: "Christmas Creation", tag: "Seasonal" },
+    
+    { src: "/cake_pics/g2.jpg", label: "Signature Dessert 2", tag: "Portfolio" },
+    { src: "/cake_pics/g3.jpg", label: "Signature Dessert 3", tag: "Portfolio" },
+    { src: "/cake_pics/g4.jpg", label: "Signature Dessert 4", tag: "Portfolio" },
+    { src: "/cake_pics/g7.jpg", label: "Signature Dessert 7", tag: "Portfolio" },
+    { src: "/cake_pics/g8.jpg", label: "Signature Dessert 8", tag: "Portfolio" },
+    { src: "/cake_pics/g10.jpg", label: "Signature Dessert 10", tag: "Portfolio" },
+    { src: "/cake_pics/g11.jpg", label: "Signature Dessert 11", tag: "Portfolio" },
+    { src: "/cake_pics/g12.jpg", label: "Signature Dessert 12", tag: "Portfolio" },
+    { src: "/cake_pics/g13.jpg", label: "Signature Dessert 13", tag: "Portfolio" },
+    { src: "/cake_pics/g14.jpg", label: "Signature Dessert 14", tag: "Portfolio" },
+    { src: "/cake_pics/g16.jpg", label: "Signature Dessert 16", tag: "Portfolio" },
+    { src: "/cake_pics/g17.jpg", label: "Signature Dessert 17", tag: "Portfolio" },
+    { src: "/cake_pics/g18.jpg", label: "Signature Dessert 18", tag: "Portfolio" },
+    { src: "/cake_pics/g19.jpg", label: "Signature Dessert 19", tag: "Portfolio" },
+    { src: "/cake_pics/spiderman_cake.jpg", label: "Spider-Man Cake", tag: "Custom Theme" },
+  ],
+  // --- Numerical (Timestamp) Files (Sorted Newest First) ---
+  ...[
+    { src: "/cake_pics/1606411176953.jpg", label: "Pastry Creation", tag: "Archive" },
+    { src: "/cake_pics/1608152475046.jpg", label: "Pastry Creation", tag: "Archive" },
+    { src: "/cake_pics/1608152497743.jpg", label: "Pastry Creation", tag: "Archive" },
+    { src: "/cake_pics/1608152527629.jpg", label: "Pastry Creation", tag: "Archive" },
+    { src: "/cake_pics/1608152549871.jpg", label: "Pastry Creation", tag: "Archive" },
+    { src: "/cake_pics/1608152618270.jpg", label: "Pastry Creation", tag: "Archive" },
+    { src: "/cake_pics/1608152741252.jpg", label: "Pastry Creation", tag: "Archive" },
+    { src: "/cake_pics/1611240278684.jpg", label: "Pastry Creation", tag: "Archive" },
+    { src: "/cake_pics/1613282438749.jpg", label: "Pastry Creation", tag: "Archive" },
+    { src: "/cake_pics/1613282531957.jpg", label: "Pastry Creation", tag: "Archive" },
+    { src: "/cake_pics/1643086583103.jpg", label: "Pastry Creation", tag: "Archive" },
+    { src: "/cake_pics/1643086798081.jpg", label: "Pastry Creation", tag: "Archive" },
+    { src: "/cake_pics/1644984303072.jpg", label: "Pastry Creation", tag: "Archive" },
+    { src: "/cake_pics/1644984372287.jpg", label: "Pastry Creation", tag: "Archive" },
+    { src: "/cake_pics/1644988820364.jpg", label: "Pastry Creation", tag: "Archive" },
+    { src: "/cake_pics/1647290048307.jpg", label: "Pastry Creation", tag: "Archive" },
+    { src: "/cake_pics/1647765551068.jpg", label: "Pastry Creation", tag: "Archive" },
+    { src: "/cake_pics/1650792546428.jpg", label: "Pastry Creation", tag: "Archive" },
+    { src: "/cake_pics/1651613817034.jpg", label: "Pastry Creation", tag: "Archive" },
+    { src: "/cake_pics/1654083970683.jpg", label: "Pastry Creation", tag: "Archive" },
+    { src: "/cake_pics/1659441472386.jpg", label: "Pastry Creation", tag: "Archive" },
+    { src: "/cake_pics/1659442745088.jpg", label: "Pastry Creation", tag: "Archive" },
+    { src: "/cake_pics/1660043119446.jpg", label: "Pastry Creation", tag: "Archive" },
+    { src: "/cake_pics/1666356356439.jpg", label: "Pastry Creation", tag: "Archive" },
+    { src: "/cake_pics/1669917166382.jpg", label: "Pastry Creation", tag: "Archive" },
+    { src: "/cake_pics/1672477560994.jpg", label: "Pastry Creation", tag: "Archive" },
+    { src: "/cake_pics/1673259155310.jpg", label: "Pastry Creation", tag: "Archive" },
+    { src: "/cake_pics/1673259221189.jpg", label: "Pastry Creation", tag: "Archive" },
+    { src: "/cake_pics/1674047195049.jpg", label: "Pastry Creation", tag: "Archive" },
+    { src: "/cake_pics/1685862819817.jpg", label: "Pastry Creation", tag: "Archive" },
+    { src: "/cake_pics/1685862919315.jpg", label: "Pastry Creation", tag: "Archive" },
+    { src: "/cake_pics/1703429153547.jpg", label: "Pastry Creation", tag: "Archive" },
+    { src: "/cake_pics/1703429216330.jpg", label: "Pastry Creation", tag: "Archive" },
+    { src: "/cake_pics/1703651472625.jpg", label: "Pastry Creation", tag: "Archive" },
+    { src: "/cake_pics/1728987358067.jpg", label: "Pastry Creation", tag: "Archive" },
+    { src: "/cake_pics/1730022204261.jpg", label: "Pastry Creation", tag: "Archive" },
+    { src: "/cake_pics/1730386615520.jpg", label: "Pastry Creation", tag: "Archive" },
+    { src: "/cake_pics/1735837863378.jpg", label: "Pastry Creation", tag: "Archive" },
+    { src: "/cake_pics/1737617505905.jpg", label: "Pastry Creation", tag: "Archive" },
+    { src: "/cake_pics/1738638277231.jpg", label: "Pastry Creation", tag: "Archive" },
+    { src: "/cake_pics/1743838551254.jpg", label: "Pastry Creation", tag: "Archive" },
+    { src: "/cake_pics/1744726250511.jpg", label: "Pastry Creation", tag: "Archive" },
+    { src: "/cake_pics/1745511454918.jpg", label: "Pastry Creation", tag: "Archive" },
+    { src: "/cake_pics/1745512768843.jpg", label: "Pastry Creation", tag: "Archive" },
+    { src: "/cake_pics/1756450799182.jpg", label: "Pastry Creation", tag: "Archive" },
+    { src: "/cake_pics/1760682954010.jpg", label: "Pastry Creation", tag: "Archive" }
+  ].sort((a, b) => {
+    // Sort timestamps descending (newest first)
+    const tA = parseInt(a.src.match(/\d+/)?.[0] || "0");
+    const tB = parseInt(b.src.match(/\d+/)?.[0] || "0");
+    return tB - tA;
+  })
 ];
 
 const experiences = [
@@ -234,10 +247,11 @@ export default function Portfolio() {
 
         .section-label { font-family:'Jost',sans-serif; font-weight:400; font-size:10px; letter-spacing:0.38em; text-transform:uppercase; color:#7A4E1A; }
 
-        /* GALLERY */
-        .gallery-item { position:relative; overflow:hidden; cursor:pointer; }
-        .gallery-item img { width:100%; height:100%; object-fit:cover; display:block; transition:transform 0.9s cubic-bezier(0.25,0.46,0.45,0.94); }
-        .gallery-item:hover img { transform:scale(1.08); }
+        /* GALLERY MASONRY */
+        .gallery-masonry { column-count: 3; column-gap: 8px; width: 100%; }
+        .gallery-item { position:relative; overflow:hidden; cursor:pointer; break-inside: avoid; page-break-inside: avoid; margin-bottom: 8px; border-radius: 4px; }
+        .gallery-img { transition:transform 0.9s cubic-bezier(0.25,0.46,0.45,0.94); }
+        .gallery-item:hover .gallery-img { transform:scale(1.08); }
         .gallery-overlay { position:absolute; inset:0; background:linear-gradient(to top, rgba(20,14,8,0.92) 0%, rgba(20,14,8,0.1) 55%, transparent 100%); opacity:0; transition:opacity 0.5s; display:flex; flex-direction:column; justify-content:flex-end; padding:28px; }
         .gallery-item:hover .gallery-overlay { opacity:1; }
         .gallery-tag { font-family:'Jost',sans-serif; font-size:9px; letter-spacing:0.28em; text-transform:uppercase; color:#D4A85A; font-weight:500; margin-bottom:6px; transform:translateY(8px); transition:transform 0.4s ease; }
@@ -310,9 +324,13 @@ export default function Portfolio() {
           .exp-grid { grid-template-columns:1fr !important; }
           .hero-layout { flex-direction:column !important; gap:48px !important; }
           .hero-name { font-size:52px !important; }
-          .gallery-grid { grid-template-columns:1fr 1fr !important; }
+          .gallery-masonry { column-count: 2 !important; }
           .stats-row { flex-wrap:wrap !important; }
           .stat-item { border-right:none !important; border-bottom:1px solid #DDD0BC; padding:16px 0 !important; width:50%; }
+        }
+        
+        @media (max-width:600px) {
+          .gallery-masonry { column-count: 1 !important; }
         }
       `}</style>
 
@@ -320,7 +338,7 @@ export default function Portfolio() {
       <nav style={{ position:"fixed", top:0, left:0, right:0, zIndex:100, padding:"18px 48px", display:"flex", justifyContent:"space-between", alignItems:"center", background:navScrolled?"rgba(250,250,248,0.97)":"transparent", backdropFilter:navScrolled?"blur(10px)":"none", borderBottom:navScrolled?"1px solid #E0D5C5":"none", transition:"all 0.4s ease" }}>
         <span className="serif-sc" style={{ fontSize:"16px", letterSpacing:"0.1em", color:"#7A4E1A", fontWeight:500 }}>MA</span>
         <div style={{ display:"flex", gap:"36px" }}>
-          {["portfolio","experience","contact"].map(s => (
+          {["experience","portfolio","contact"].map(s => (
             <a key={s} href={`#${s}`} className="nav-link">{s}</a>
           ))}
         </div>
@@ -360,8 +378,8 @@ export default function Portfolio() {
                 {/* Inner spinning solid ring */}
                 <div className="ring-reverse ring-pulse" style={{ position:"absolute", inset:"-10px", borderRadius:"50%", border:"1.5px solid #C8A96E", pointerEvents:"none" }} />
                 {/* Photo */}
-                <div style={{ width:"340px", height:"340px", borderRadius:"50%", overflow:"hidden", border:"4px solid #FFFFFF", boxShadow:"0 24px 64px rgba(122,78,26,0.18)" }}>
-                  <img src="ali_profile.jpg" alt="Chef Mohammed Abdullah" style={{ width:"100%", height:"100%", objectFit:"cover", objectPosition:"center top" }} />
+                <div style={{ position:"relative", width:"340px", height:"340px", borderRadius:"50%", overflow:"hidden", border:"4px solid #FFFFFF", boxShadow:"0 24px 64px rgba(122,78,26,0.18)" }}>
+                  <Image src="/ali_profile.jpg" alt="Chef Mohammed Abdullah" fill priority style={{ objectFit:"cover", objectPosition:"center top" }} sizes="340px" />
                 </div>
                 {/* Badge */}
                 <div style={{ position:"absolute", bottom:"12px", right:"-8px", background:"#7A4E1A", color:"#FFFFFF", borderRadius:"50%", width:"80px", height:"80px", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", boxShadow:"0 6px 20px rgba(122,78,26,0.4)", border:"3px solid #FFFFFF" }}>
@@ -385,45 +403,6 @@ export default function Portfolio() {
           </div>
         </div>
       </header>
-
-      {/* ── PORTFOLIO ── */}
-      <section id="portfolio" style={{ padding:"112px 48px", background:"#F2EDE4" }}>
-        <div style={{ maxWidth:"1200px", margin:"0 auto" }}>
-          <div ref={galleryRef} style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:"60px", flexWrap:"wrap", gap:"24px" }}>
-            <div className={`reveal-left ${galleryInView?"visible":""}`}>
-              <div className="section-label" style={{ marginBottom:"14px" }}>Signature Works</div>
-              <h2 className="serif" style={{ fontSize:"50px", fontWeight:500, color:"#1A1612", lineHeight:1.05 }}>
-                Featured<br /><span style={{ fontStyle:"italic", color:"#7A4E1A", fontWeight:400 }}>Creations</span>
-              </h2>
-            </div>
-            <p className={`sans reveal-right ${galleryInView?"visible":""}`} style={{ fontSize:"14px", fontWeight:400, color:"#4A3B2A", maxWidth:"280px", lineHeight:1.75, transitionDelay:"0.15s" }}>
-              A curated selection spanning fine dining desserts, celebration cakes, and artisan production.
-            </p>
-          </div>
-
-          <div className="gallery-grid" style={{ display:"grid", gridTemplateColumns:"1.4fr 1fr 1fr", gap:"3px" }}>
-            {pastryImages.map((img, i) => (
-              <div
-                key={i}
-                className={`gallery-item reveal-scale ${galleryInView?"visible":""}`}
-                style={{
-                  gridColumn:i===0?"1":i===3?"1":"auto",
-                  gridRow:i===0?"1":i===3?"2":"auto",
-                  aspectRatio:i===0||i===3?"3/4":"2/3",
-                  transitionDelay:`${0.1 + i * 0.08}s`,
-                }}
-                onClick={() => setActiveImage(img)}
-              >
-                <img src={img.src} alt={img.label} />
-                <div className="gallery-overlay">
-                  <div className="gallery-tag">{img.tag}</div>
-                  <div className="gallery-label">{img.label}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* ── SKILLS ── */}
       <section style={{ padding:"96px 48px", background:"#FFFFFF", borderTop:"1px solid #E0D5C5", borderBottom:"1px solid #E0D5C5" }}>
@@ -498,6 +477,53 @@ export default function Portfolio() {
         </div>
       </section>
 
+      {/* ── PORTFOLIO ── */}
+      <section id="portfolio" style={{ padding:"112px 48px", background:"#F2EDE4" }}>
+        <div style={{ maxWidth:"1200px", margin:"0 auto" }}>
+          <div ref={galleryRef} style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:"60px", flexWrap:"wrap", gap:"24px" }}>
+            <div className={`reveal-left ${galleryInView?"visible":""}`}>
+              <div className="section-label" style={{ marginBottom:"14px" }}>Signature Works</div>
+              <h2 className="serif" style={{ fontSize:"50px", fontWeight:500, color:"#1A1612", lineHeight:1.05 }}>
+                Featured<br /><span style={{ fontStyle:"italic", color:"#7A4E1A", fontWeight:400 }}>Creations</span>
+              </h2>
+            </div>
+            <p className={`sans reveal-right ${galleryInView?"visible":""}`} style={{ fontSize:"14px", fontWeight:400, color:"#4A3B2A", maxWidth:"280px", lineHeight:1.75, transitionDelay:"0.15s" }}>
+              A curated selection spanning fine dining desserts, celebration cakes, and artisan production.
+            </p>
+          </div>
+
+          <div className="gallery-masonry">
+            {pastryImages.map((img, i) => (
+              <div
+                key={i}
+                className={`gallery-item reveal-scale ${galleryInView?"visible":""}`}
+                style={{
+                  height: `${[420, 320, 540, 280, 460, 380][i % 6]}px`,
+                  transitionDelay:`${0.05 * (i % 6)}s`,
+                }}
+                onClick={() => setActiveImage(img)}
+              >
+                <Image 
+                  src={img.src} 
+                  alt={img.label} 
+                  fill 
+                  priority={i < 6}
+                  sizes="(max-width: 600px) 100vw, (max-width: 900px) 50vw, 33vw"
+                  style={{ objectFit: "cover" }} 
+                  className="gallery-img"
+                  placeholder="blur"
+                  blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mO8Xg8AAmkBa0sPnjcAAAAASUVORK5CYII="
+                />
+                <div className="gallery-overlay">
+                  <div className="gallery-tag">{img.tag}</div>
+                  <div className="gallery-label">{img.label}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ── CONTACT ── */}
       <footer id="contact" style={{ padding:"96px 48px", background:"#F2EDE4", borderTop:"1px solid #E0D5C5" }}>
         <div ref={contactRef} style={{ maxWidth:"860px", margin:"0 auto" }}>
@@ -540,9 +566,17 @@ export default function Portfolio() {
 
       {/* ── LIGHTBOX ── */}
       {activeImage && (
-        <div onClick={() => setActiveImage(null)} style={{ position:"fixed", inset:0, background:"rgba(20,14,8,0.93)", zIndex:999, display:"flex", alignItems:"center", justifyContent:"center", padding:"40px", cursor:"pointer" }}>
+        <div onClick={() => setActiveImage(null)} style={{ position:"fixed", inset:0, background:"rgba(20,14,8,0.93)", zIndex:999, display:"flex", alignItems:"center", justifyContent:"center", padding:"40px", cursor:"pointer", transition: "opacity 0.3s ease" }}>
           <div className="lb-card" onClick={e => e.stopPropagation()} style={{ maxWidth:"580px", width:"100%" }}>
-            <img src={activeImage.src} alt={activeImage.label} style={{ width:"100%", maxHeight:"68vh", objectFit:"cover", display:"block" }} />
+            <div style={{ position: "relative", width: "100%", height: "68vh" }}>
+              <Image 
+                src={activeImage.src} 
+                alt={activeImage.label} 
+                fill 
+                style={{ objectFit: "contain" }} 
+                sizes="100vw"
+              />
+            </div>
             <div style={{ padding:"18px 0", borderBottom:"1px solid rgba(220,208,190,0.2)" }}>
               <span className="sans" style={{ fontSize:"9px", letterSpacing:"0.28em", textTransform:"uppercase", color:"#D4A85A", fontWeight:500 }}>{activeImage.tag}</span>
               <p className="serif" style={{ fontSize:"24px", fontWeight:400, color:"#FAFAF8", marginTop:"5px" }}>{activeImage.label}</p>
