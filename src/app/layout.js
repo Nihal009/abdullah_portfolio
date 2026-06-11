@@ -90,6 +90,7 @@ export default function RootLayout({ children }) {
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
+        <meta name="google-site-verification" content="9KEawM3EphE1eoBXXR-S766rEe_0L2IQoFw2mJpUQ90" />
       </head>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
